@@ -51,6 +51,17 @@ class Usuario extends Model {
     return $stmt->fetchAll(\PDO::FETCH_ASSOC);
   }
 
+  // Recuperar informações do usuário atual para usar no nome do perfil
+  public function getInfoUsuario() {
+    $query = "SELECT nome FROM usuarios WHERE id = :id_usuario";
+    $stmt = $this->db->prepare($query);
+    $stmt->bindValue(':id_usuario', $this->__get('id'));
+    $stmt->execute();
+
+    return $stmt->fetch(\PDO::FETCH_ASSOC);
+  }
+
+  // Validar se o usuário existe no banco, e as informações coincidem com o registro no banco
   public function autenticar() {
     $query = "SELECT id, nome, email FROM usuarios WHERE email = :email AND senha = :senha";
     $stmt = $this->db->prepare($query);
@@ -68,6 +79,7 @@ class Usuario extends Model {
     return $this;
   }
 
+  // Recuperar quem o usuário está seguindo
   public function getAll() {
     $query =
       "SELECT
@@ -93,6 +105,36 @@ class Usuario extends Model {
     $stmt->execute();
 
     return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+  }
+
+  // Recuperar o total de Tweets
+  public function getTotalTweets() {
+    $query = "SELECT COUNT(*) AS total_tweets FROM tweets WHERE id_usuario = :id_usuario";
+    $stmt = $this->db->prepare($query);
+    $stmt->bindValue(':id_usuario', $this->__get('id'));
+    $stmt->execute();
+
+    return $stmt->fetch(\PDO::FETCH_ASSOC);
+  }
+
+  // Recuperar o total de pessoas que o usuario segue
+  public function getTotalSeguindo() {
+    $query = "SELECT COUNT(*) AS total_seguindo FROM usuarios_seguidores WHERE id_usuario = :id_usuario";
+    $stmt = $this->db->prepare($query);
+    $stmt->bindValue(':id_usuario', $this->__get('id'));
+    $stmt->execute();
+
+    return $stmt->fetch(\PDO::FETCH_ASSOC);
+  }
+
+  // Recuperar o total de seguidores
+  public function getTotalFollowers() {
+    $query = "SELECT COUNT(*) AS total_followers FROM usuarios_seguidores WHERE id_usuario_follower = :id_usuario";
+    $stmt = $this->db->prepare($query);
+    $stmt->bindValue(':id_usuario', $this->__get('id'));
+    $stmt->execute();
+
+    return $stmt->fetch(\PDO::FETCH_ASSOC);
   }
 }
 
