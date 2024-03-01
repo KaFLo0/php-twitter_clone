@@ -34,6 +34,21 @@ class AppController extends Action {
     header('Location: /timeline');
   }
 
+  public function deletarTweet() {
+    $this->validaAutenticacao();
+    
+    $tweet = Container::getModel('Tweet');
+
+    $tweet->__set('id_usuario', $_SESSION['id']);
+    $id_tweet = isset($_GET['tweetid']) ? $_GET['tweetid'] : null;
+
+    if(!is_null($id_tweet)) {
+      $tweet->deletarTweet($id_tweet);
+    }
+
+    header('Location: /timeline');
+  }
+
   public function validaAutenticacao() {
     session_start();
     if(!isset($_SESSION['id']) || $_SESSION['id'] == '' || !isset($_SESSION['nome']) || $_SESSION['nome'] == '') {
@@ -73,6 +88,7 @@ class AppController extends Action {
     } else if($acao == 'deixar_de_seguir') {
       $usuario->deixarSeguirUsuario($id_usuario_follower);
     }
+    header('Location: /quem_seguir');
   }
 }
 

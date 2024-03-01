@@ -39,6 +39,9 @@ class Tweet extends Model {
         LEFT JOIN usuarios AS u ON (t.id_usuario = u.id)
       WHERE
         id_usuario = :id_usuario
+        OR t.id_usuario IN(
+          SELECT id_usuario_follower FROM usuarios_seguidores WHERE id_usuario = :id_usuario
+        )
       ORDER BY
         t.data DESC
     ";
@@ -47,6 +50,22 @@ class Tweet extends Model {
     $stmt->execute();
 
     return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+  }
+
+  // Deletar
+  public function deletarTweet($id_tweet) {
+    $query = 
+    "DELETE FROM
+      tweets
+    WHERE
+      id_usuario = :id_usuario AND id = :id_tweet
+    ";
+    $stmt = $this->db->prepare($query);
+    $stmt->bindValue(':id_usuario', $this->__get('id_usuario'));
+    $stmt->bindValue(':id_tweet', $id_tweet);
+    $stmt->execute();
+
+    return true;
   }
 }
 
