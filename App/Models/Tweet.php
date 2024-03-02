@@ -30,10 +30,23 @@ class Tweet extends Model {
   }
 
   // Recuperar
-  public function recuperarTweets() {
+  public function recuperarTweets($limit, $offset) {
     $query = 
       "SELECT
-        t.id, t.id_usuario, u.nome, t.tweet, DATE_FORMAT(t.data, '%d/%m/%Y %H:%i') AS data
+        t.id,
+        t.id_usuario,
+        u.nome,
+        t.tweet,
+        DATE_FORMAT(t.data, '%d/%m/%Y %H:%i') AS data,
+        (SELECT COUNT(*)
+          FROM tweets AS t2
+          LEFT JOIN usuarios AS u2 ON (t2.id_usuario = u2.id)
+          WHERE
+            t2.id_usuario = :id_usuario
+            OR t2.id_usuario IN(
+              SELECT id_usuario_follower FROM usuarios_seguidores WHERE id_usuario = :id_usuario
+        )
+        ) AS total
       FROM
         tweets AS t
         LEFT JOIN usuarios AS u ON (t.id_usuario = u.id)
@@ -44,6 +57,8 @@ class Tweet extends Model {
         )
       ORDER BY
         t.data DESC
+      LIMIT
+        $offset, $limit
     ";
     $stmt = $this->db->prepare($query);
     $stmt->bindValue(':id_usuario', $this->__get('id_usuario'));

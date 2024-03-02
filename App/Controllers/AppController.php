@@ -11,10 +11,15 @@ class AppController extends Action {
 
     // Recuperação dos tweets
     $tweet = Container::getModel('Tweet');
-
     $tweet->__set('id_usuario', $_SESSION['id']);
+    // Variáveis de paginação
+    $pagina = isset($_GET['pagina']) ? $_GET['pagina'] : 1;
+    $limit = 10;
+    $offset = ($pagina - 1) * $limit;
 
-    $tweets = $tweet->recuperarTweets();
+    $tweets = $tweet->recuperarTweets($limit, $offset);
+    $this->view->total_paginas = ceil($tweets[0]['total']/$limit);
+    $this->view->pagina_ativa = $pagina;
 
     $this->view->tweets = $tweets;
 
@@ -44,7 +49,7 @@ class AppController extends Action {
 
   public function deletarTweet() {
     $this->validaAutenticacao();
-    
+
     $tweet = Container::getModel('Tweet');
 
     $tweet->__set('id_usuario', $_SESSION['id']);
